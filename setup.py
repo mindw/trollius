@@ -20,15 +20,7 @@
 #  - git commit -a && git push
 
 import os
-import sys
-try:
-    from setuptools import setup, Extension
-    SETUPTOOLS = True
-except ImportError:
-    SETUPTOOLS = False
-    # Use distutils.core as a fallback.
-    # We won't be able to build the Wheel file on Windows.
-    from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 with open("README.rst") as fp:
     long_description = fp.read()
@@ -39,12 +31,6 @@ if os.name == 'nt':
         'trollius._overlapped', ['overlapped.c'], libraries=['ws2_32'],
     )
     extensions.append(ext)
-
-requirements = ['six']
-if sys.version_info < (2, 7):
-    requirements.append('ordereddict')
-if sys.version_info < (3,):
-    requirements.append('futures')
 
 install_options = {
     "name": "trollius",
@@ -67,8 +53,11 @@ install_options = {
     "test_suite": "runtests.runtests",
 
     "ext_modules": extensions,
+    "extras_require": {
+        ':python_version == "2.6"': ['argparse'],
+        ':python_version < "3.0"': ['futures'],
+    }, 
+    'install_requires': ['six']
 }
-if SETUPTOOLS:
-    install_options['install_requires'] = requirements
 
 setup(**install_options)
